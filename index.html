@@ -2,347 +2,727 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<title>Registre Prises Médicaments</title>
+<title>Registre Médicaments</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<!-- PWA manifest -->
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#2563eb">
-
 <style>
+:root {
+  --bleu: #2f8cf5; --bleu-clair: #e8f3ff; --fond: #f5f7fb; --texte: #1e2a3a;
+  --gris: #6b778a; --bord: #dde3ec; --orange: #c26a00;
+}
+* { box-sizing: border-box; }
 body {
-  font-family: Arial, sans-serif;
-  background: #f4f6f9;
-  padding: 20px;
+  margin: 0;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: var(--texte);
+  background: linear-gradient(135deg, #4facfe, #00f2fe) fixed;
+  display: flex;
+  justify-content: center;
+  padding: 24px 14px;
 }
-
-.container {
-  max-width: 800px;
-  margin: auto;
+.app {
   background: white;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 760px;
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  align-self: flex-start;
 }
+h1 { text-align: center; margin: 0 0 20px; font-size: 24px; }
+h3 { margin: 0; font-size: 18px; }
 
-h1 {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.grid {
+/* ----- Formulaire ----- */
+.form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 12px 14px;
+  background: var(--fond);
+  border-radius: 16px;
+  padding: 16px;
 }
+.full { grid-column: 1 / -1; }
+.champ { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.champ > label { font-size: 12px; font-weight: 600; color: var(--gris); letter-spacing: .3px; text-transform: uppercase; }
 
-.full {
-  grid-column: 1 / -1;
-}
-
-input, select, textarea, button {
+input, textarea, select {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 14px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid var(--bord);
+  background: white;
+  font: inherit;
+  font-size: 15px;
+  color: var(--texte);
+  outline: none;
+  height: 46px;
 }
+input:focus, textarea:focus, select:focus { border-color: var(--bleu); box-shadow: 0 0 0 3px rgba(47,140,245,.18); }
+textarea { height: 76px; padding: 12px 14px; resize: vertical; }
 
-textarea {
-  resize: none;
-  height: 70px;
-}
+.dose-row { display: grid; grid-template-columns: 1.2fr 1fr; gap: 8px; }
 
 button {
-  background: #2563eb;
+  padding: 13px 16px;
+  border-radius: 12px;
+  border: none;
+  background: linear-gradient(135deg, #4facfe, #00c6ff);
+  color: white;
+  font-weight: bold;
+  font-size: 16px;
+  cursor: pointer;
+  transition: transform .15s;
+}
+button:hover { transform: translateY(-1px); }
+.btns { grid-column: 1 / -1; display: flex; flex-direction: column; gap: 8px; }
+
+.lien { font-size: 13px; background: var(--bleu-clair); border-radius: 10px; padding: 9px 12px; }
+.lien a { color: var(--bleu); }
+.hidden-champ { display: none; }
+
+/* ----- Historique ----- */
+.titre-histo { display: flex; align-items: baseline; justify-content: space-between; margin: 26px 0 4px; }
+.compteur { font-size: 13px; color: var(--gris); }
+.vide { text-align: center; color: var(--gris); padding: 24px 0; font-size: 14px; }
+
+.record {
+  background: white;
+  padding: 14px 16px;
+  border-radius: 14px;
+  margin-top: 10px;
+  border: 1px solid var(--bord);
+  border-left: 5px solid var(--bleu);
+  display: grid;
+  gap: 8px;
+}
+.record-tete { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.record-tete strong { font-size: 17px; }
+.record-meta { display: flex; flex-wrap: wrap; gap: 4px 16px; }
+.badge {
+  background: var(--bleu-clair);
+  color: #1b6cc4;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  width: fit-content;
+  white-space: nowrap;
+}
+.small { font-size: 13px; color: var(--gris); }
+.next { font-size: 13px; color: var(--orange); background: #fff4e5; border-radius: 8px; padding: 6px 10px; width: fit-content; }
+.note { font-size: 13px; background: var(--fond); border-radius: 8px; padding: 6px 10px; }
+.record-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+.delete, .edit, .grey {
+  background: #ff5c5c;
+  padding: 7px 12px;
+  font-size: 13px;
+  border-radius: 10px;
   color: white;
   border: none;
   cursor: pointer;
-  font-weight: bold;
+  width: fit-content;
 }
+.edit { background: #4caf50; }
+.grey { background: #8a94a6; }
 
-button:hover {
-  background: #1e40af;
+/* ----- Paramètres ----- */
+details { margin-top: 22px; background: var(--fond); border-radius: 14px; padding: 12px 16px; }
+summary { cursor: pointer; font-weight: bold; }
+.regle { display: flex; align-items: center; gap: 10px; padding: 6px 0; border-bottom: 1px solid var(--bord); }
+.regle span { flex: 1; }
+.regle input { width: 80px; height: 38px; text-align: center; padding: 0 6px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+.actions button { font-size: 14px; padding: 10px 14px; }
+
+/* ----- Fenêtre code ----- */
+.modal {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 10;
 }
+.modal.hidden { display: none; }
+.box { background: white; padding: 22px; border-radius: 16px; width: 280px; display: grid; gap: 12px; text-align: center; }
+.box input { text-align: center; letter-spacing: 6px; font-size: 22px; }
+.box .row { display: flex; gap: 8px; }
+.box .row button { flex: 1; padding: 12px; }
+.erreur { color: #d33; font-size: 13px; min-height: 16px; }
 
-.record {
-  background: #f1f5f9;
-  padding: 12px;
-  border-radius: 8px;
-  margin-top: 10px;
-  border-left: 4px solid #2563eb;
-  transition: background-color 0.3s;
-}
-
-.small {
-  font-size: 12px;
-  color: gray;
-}
-
-.action-btn {
-  background: #ef4444;
-  margin-top: 5px;
-}
-
-.action-btn:hover {
-  background: #b91c1c;
-}
-
-.modify-btn {
-  background: #facc15;
-  color: black;
-  margin-top: 5px;
-}
-
-.modify-btn:hover {
-  background: #ca8a04;
-}
-
-/* Bloc d'avertissement */
-#alerte {
-  display: none;
-  padding: 10px;
-  border-radius: 8px;
-  margin-top: 10px;
-  background-color: #ffe5e5;
-  color: #b91c1c;
-  font-weight: bold;
-  text-align: center;
+@media (max-width: 560px) {
+  body { padding: 10px; }
+  .app { padding: 16px; border-radius: 16px; }
+  .form-grid { grid-template-columns: 1fr; padding: 12px; }
+  .dose-row { grid-template-columns: 1fr 1fr; }
+  .record-actions button { flex: 1; padding: 10px; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<div class="app">
+<h1>💊 Registre de médicaments</h1>
 
-<h1>💊 Registre de prises de médicaments</h1>
+<div class="form-grid">
 
-<div class="grid">
-  <input id="personne" placeholder="Nom de la personne">
-
-  <select id="medicament">
-    <option value="">Sélectionner un médicament</option>
-    <option>Paracétamol</option>
-    <option>Ibuprofène</option>
-    <option>Aspirine</option>
-    <option>Doliprane</option>
-    <option>Efferalgan</option>
-    <option>Amoxicilline</option>
-    <option>Vitamine C</option>
-    <option>Autre</option>
-  </select>
-
-  <input id="nouveauMed" placeholder="Nom si Autre" style="display:none">
-
-  <input id="dose" placeholder="Dose (ex: 500 mg)">
-  <input type="datetime-local" id="dateHeure">
-
-  <textarea id="note" class="full" placeholder="Remarque (facultatif)"></textarea>
-
-  <button onclick="ajouterPrise()" class="full">➕ Enregistrer la prise</button>
+<div class="champ full">
+  <label for="personne">Personne</label>
+  <input id="personne" list="listePersonnes" placeholder="👤 Nom de la personne" autocomplete="off">
+  <datalist id="listePersonnes"></datalist>
 </div>
 
-<!-- Bloc d'avertissement -->
-<div id="alerte">⚠️ Attention ! Prise récente détectée</div>
+<div class="champ full" id="blocMed">
+  <label for="medicament">Médicament</label>
+  <select id="medicament"></select>
+</div>
 
-<h3 style="margin-top:20px">🕒 Historique</h3>
+<div class="champ hidden-champ" id="blocNouveau">
+  <label for="nouveauMed">Nom du nouveau médicament</label>
+  <input id="nouveauMed" placeholder="Nom du médicament">
+</div>
+
+<div class="champ" id="blocDose">
+  <label for="dose">Dose</label>
+  <div class="dose-row">
+    <input id="dose" type="text" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" placeholder="ex : 500">
+    <select id="unite">
+      <option>mg</option><option>g</option><option>µg</option><option>ml</option>
+      <option>comprimé(s)</option><option>gélule(s)</option><option>sachet(s)</option>
+      <option>goutte(s)</option><option>UI</option><option>dose(s)</option>
+    </select>
+  </div>
+</div>
+
+<div class="champ">
+  <label for="dateHeure">Date et heure</label>
+  <input id="dateHeure" type="datetime-local">
+</div>
+
+<div class="full lien" id="lienNotice" style="display:none">
+  🔎 <a href="https://base-donnees-publique.medicaments.gouv.fr/" target="_blank" rel="noopener">Chercher la notice officielle</a>
+  — le délai par défaut sera de 4 h, modifiable dans ⚙️ Paramètres.
+</div>
+
+<div class="champ full">
+  <label for="note">Remarque</label>
+  <textarea id="note" placeholder="Facultatif"></textarea>
+</div>
+
+<div class="btns">
+  <button id="btnSave" onclick="ajouter()">➕ Enregistrer la prise</button>
+  <button id="btnCancel" class="grey" style="display:none; padding:13px 16px; width:100%" onclick="annulerEdition()">Annuler la modification</button>
+</div>
+
+</div>
+
+<div class="titre-histo">
+  <h3>🕒 Historique</h3>
+  <span class="compteur" id="compteur"></span>
+</div>
 <div id="liste"></div>
 
+<details id="parametres">
+  <summary>⚙️ Paramètres</summary>
+
+  <p class="small">Délai minimum entre deux prises, en heures. Valeurs indicatives : elles ne remplacent pas la notice, un médecin ou un pharmacien.</p>
+  <div id="listeRegles"></div>
+
+  <div class="actions">
+    <button class="grey" onclick="reinitialiserRegles()">↩︎ Valeurs d'origine</button>
+    <button class="edit" onclick="exporter()">⬇️ Exporter une sauvegarde</button>
+    <button class="edit" onclick="document.getElementById('fichierImport').click()">⬆️ Importer une sauvegarde</button>
+    <input id="fichierImport" type="file" accept=".json,application/json" style="display:none" onchange="importer(event)">
+  </div>
+</details>
 </div>
 
-<script type="module">
-// Firebase SDK
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, query, orderBy, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js";
+<!-- Fenêtre du code (clavier numérique) -->
+<div id="modal" class="modal hidden">
+  <div class="box">
+    <div id="modalTitre"><strong>Code</strong></div>
+    <input id="modalCode" type="password" inputmode="numeric" pattern="[0-9]*" autocomplete="off" maxlength="12">
+    <div id="modalErreur" class="erreur"></div>
+    <div class="row">
+      <button id="modalOk">OK</button>
+      <button id="modalAnnuler" class="grey">Annuler</button>
+    </div>
+  </div>
+</div>
 
-// Config Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyD7njwfHFdCzdnP4xfetF50jn_Glde3Gug",
-  authDomain: "registre-medicament-2.firebaseapp.com",
-  projectId: "registre-medicament-2",
-  storageBucket: "registre-medicament-2.firebasestorage.app",
-  messagingSenderId: "107773329662",
-  appId: "1:107773329662:web:ce53ec013d660b50eca5af"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Gestion champ "Autre"
-const select = document.getElementById("medicament");
-const champNouveau = document.getElementById("nouveauMed");
-
-select.addEventListener("change", () => {
-  champNouveau.style.display = select.value === "Autre" ? "block" : "none";
-});
-
-// Mot de passe
-const PASSWORD = "250825";
-
-// Ajouter une prise
-window.ajouterPrise = async function () {
-  let medicament = select.value;
-  let nouveau = champNouveau.value.trim();
-  let dose = document.getElementById("dose").value.trim();
-  let dateHeure = document.getElementById("dateHeure").value;
-  let note = document.getElementById("note").value.trim();
-  let personne = document.getElementById("personne").value.trim();
-
-  if (!personne) return alert("❌ Entre le nom de la personne !");
-  
-  if (medicament === "Autre") {
-    if (!nouveau) return alert("Entre le nom du médicament");
-    medicament = nouveau;
-  }
-
-  if (!medicament || !dose || !dateHeure) return alert("Remplis médicament, dose et date/heure");
-
-  try {
-    const q = query(collection(db, "prises"), orderBy("dateheure", "desc"));
-    const querySnapshot = await getDocs(q);
-    const maintenant = new Date(dateHeure);
-
-    let priseRecente = null;
-    querySnapshot.forEach(docSnap => {
-      let p = docSnap.data();
-      if (p.personne === personne && p.medicament === medicament) {
-        let diff = (maintenant - new Date(p.dateheure)) / 1000 / 3600;
-        if (diff < 4) priseRecente = p;
-      }
-    });
-
-    if (priseRecente) {
-      // Afficher et faire clignoter le bloc d'avertissement
-      const alerte = document.getElementById("alerte");
-      alerte.style.display = "block";
-      
-      let visible = true;
-      const interval = setInterval(() => {
-        alerte.style.backgroundColor = visible ? "#ffe5e5" : "transparent";
-        visible = !visible;
-      }, 400);
-
-      setTimeout(() => {
-        clearInterval(interval);
-        alerte.style.display = "none";
-        alerte.style.backgroundColor = "#ffe5e5"; 
-      }, 2000);
-
-      let confirmer = confirm(
-        `⚠️ Attention ! ${personne} a déjà pris ${medicament} il y a moins de 4 heures (${new Date(priseRecente.dateheure).toLocaleString()}).\nVoulez-vous quand même enregistrer ?`
-      );
-      if (!confirmer) return;
-    }
-
-    await addDoc(collection(db, "prises"), {
-      personne,
-      medicament,
-      dose,
-      dateheure: dateHeure,
-      note,
-      createdAt: new Date()
-    });
-
-    alert("✅ Prise enregistrée !");
-    champNouveau.value = "";
-    document.getElementById("dose").value = "";
-    document.getElementById("note").value = "";
-    document.getElementById("personne").value = "";
-    chargerPrises();
-  } catch (e) {
-    alert("❌ Erreur Firebase : " + e.message);
-  }
-};
-
-// Charger l’historique
-async function chargerPrises() {
-  let liste = document.getElementById("liste");
-  liste.innerHTML = "";
-
-  try {
-    const q = query(collection(db, "prises"), orderBy("createdAt", "desc"));
-    const querySnapshot = await getDocs(q);
-
-    querySnapshot.forEach((docSnap) => {
-      let p = docSnap.data();
-      let div = document.createElement("div");
-      div.className = "record";
-
-      div.innerHTML = `
-        <strong>${p.personne} → ${p.medicament}</strong><br>
-        Dose : ${p.dose}<br>
-        Date : ${new Date(p.dateheure).toLocaleString()}<br>
-        ${p.note ? "<span class='small'>Note : " + p.note + "</span>" : ""}
-        <button class="modify-btn" onclick="modifierPrise('${docSnap.id}')">✏️ Modifier</button>
-        <button class="action-btn" onclick="supprimerPrise('${docSnap.id}')">🗑 Supprimer</button>
-      `;
-
-      liste.appendChild(div);
-    });
-
-  } catch (e) {
-    console.error(e);
-    alert("❌ Impossible de charger l'historique");
-  }
-}
-
-// Supprimer une prise
-window.supprimerPrise = async function (id) {
-  const mdp = prompt("Mot de passe pour supprimer :");
-  if (mdp !== PASSWORD) return alert("❌ Mot de passe incorrect");
-
-  try {
-    await deleteDoc(doc(db, "prises", id));
-    alert("✅ Prise supprimée !");
-    chargerPrises();
-  } catch (e) {
-    alert("❌ Impossible de supprimer : " + e.message);
-  }
-}
-
-// Modifier une prise
-window.modifierPrise = async function (id) {
-  const mdp = prompt("Mot de passe pour modifier :");
-  if (mdp !== PASSWORD) return alert("❌ Mot de passe incorrect");
-
-  const newPersonne = prompt("Nom de la personne :");
-  const newMed = prompt("Nom du médicament :");
-  const newDose = prompt("Dose :");
-  const newDate = prompt("Date/heure (YYYY-MM-DDTHH:MM) :");
-  const newNote = prompt("Note :");
-
-  if (!newPersonne || !newMed || !newDose || !newDate) return alert("Remplis tous les champs obligatoires");
-
-  try {
-    await updateDoc(doc(db, "prises", id), {
-      personne: newPersonne,
-      medicament: newMed,
-      dose: newDose,
-      dateheure: newDate,
-      note: newNote
-    });
-
-    alert("✅ Prise modifiée !");
-    chargerPrises();
-  } catch (e) {
-    alert("❌ Impossible de modifier : " + e.message);
-  }
-}
-
-// Chargement auto au démarrage
-chargerPrises();
-</script>
-
-<!-- Enregistrement du service worker pour PWA -->
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js")
-      .then(reg => console.log("Service Worker enregistré:", reg))
-      .catch(err => console.log("Erreur Service Worker:", err));
+const PASSWORD = "091010";
+
+/* ---------- Règles intégrées (indicatives) ----------
+   d = délai minimum en heures
+   s = substances actives (pour détecter les doublons entre marques)
+   c = classes (pour détecter les interactions)                     */
+const REGLES_DEFAUT = {
+  "Paracétamol":   { d: 4,  s: ["paracetamol"] },
+  "Doliprane":     { d: 4,  s: ["paracetamol"] },
+  "Efferalgan":    { d: 4,  s: ["paracetamol"] },
+  "Dafalgan":      { d: 4,  s: ["paracetamol"] },
+  "Codoliprane":   { d: 6,  s: ["paracetamol", "codeine"], c: ["sedatif"] },
+  "Ibuprofène":    { d: 6,  s: ["ibuprofene"], c: ["ains"] },
+  "Nurofen":       { d: 6,  s: ["ibuprofene"], c: ["ains"] },
+  "Rhinadvil":     { d: 6,  s: ["ibuprofene", "pseudoephedrine"], c: ["ains"] },
+  "Aspirine":      { d: 4,  s: ["aspirine"], c: ["ains"] },
+  "Kardegic":      { d: 24, s: ["aspirine"], c: ["ains"] },
+  "Amoxicilline":  { d: 8 },
+  "Spasfon":       { d: 4 },
+  "Smecta":        { d: 4 },
+  "Imodium":       { d: 4 },
+  "Ventoline":     { d: 4 },
+  "Levothyrox":    { d: 24, s: ["levothyroxine"], c: ["thyroide"] },
+  "Synthroid":     { d: 24, s: ["levothyroxine"], c: ["thyroide"] },
+  "Xanax":         { d: 8,  c: ["sedatif"] },
+  "Lexomil":       { d: 8,  c: ["sedatif"] },
+  "Rivotril":      { d: 8,  c: ["sedatif"] },
+  "Valium":        { d: 8,  c: ["sedatif"] },
+  "Seroplex":      { d: 24, c: ["serotonine"] },
+  "Zoloft":        { d: 24, c: ["serotonine"] },
+  "Prozac":        { d: 24, c: ["serotonine"] },
+  "Tramadol":      { d: 6,  c: ["sedatif", "serotonine"] },
+  "Morphine":      { d: 4,  c: ["sedatif"] },
+  "Fentanyl":      { d: 24, c: ["sedatif"] },
+  "Metformine":    { d: 8 },
+  "Lantus":        { d: 24 },
+  "Novorapid":     { d: 4 },
+  "Insuline":      { d: 4 },
+  "Oméprazole":    { d: 24, s: ["omeprazole"] },
+  "Mopral":        { d: 24, s: ["omeprazole"] },
+  "Gaviscon":      { d: 4,  c: ["chelateur"] },
+  "Rennie":        { d: 2,  c: ["chelateur"] },
+  "Toplexil":      { d: 6 },
+  "Humex":         { d: 6,  s: ["paracetamol"] },
+  "Actifed":       { d: 6,  s: ["paracetamol", "pseudoephedrine"] },
+  "Zyrtec":        { d: 24, c: ["antihistaminique"] },
+  "Aerius":        { d: 24, c: ["antihistaminique"] },
+  "Claritin":      { d: 24, c: ["antihistaminique"] },
+  "Solupred":      { d: 24, c: ["corticoide"] },
+  "Prednisone":    { d: 24, c: ["corticoide"] },
+  "Hydrocortisone":{ d: 8,  c: ["corticoide"] },
+  "Biseptine":     { d: 4 },
+  "Bétadine":      { d: 8 },
+  "Hexomédine":    { d: 8 },
+  "Tardyferon":    { d: 24, c: ["chelateur"] },
+  "Ferograd":      { d: 24, c: ["chelateur"] },
+  "Magnésium":     { d: 12, c: ["chelateur"] },
+  "Vitamine D":    { d: 24 },
+  "Vitamine C":    { d: 24 },
+  "Vitamine B12":  { d: 24 }
+};
+
+const INTERACTIONS = [
+  { a: "sedatif", b: "sedatif", h: 24, msg: "⚠️ Sédatifs / opioïdes associés : risque de somnolence et de ralentissement de la respiration." },
+  { a: "serotonine", b: "serotonine", h: 24, msg: "⚠️ Risque de syndrome sérotoninergique (deux médicaments agissant sur la sérotonine)." },
+  { a: "ains", b: "ains", h: 24, msg: "⚠️ Deux anti-inflammatoires / aspirine : risque digestif et rénal." },
+  { a: "ains", b: "corticoide", h: 24, msg: "⚠️ Anti-inflammatoire + corticoïde : risque d'ulcère ou de saignement digestif." },
+  { a: "corticoide", b: "corticoide", h: 24, msg: "⚠️ Deux corticoïdes : doublon possible." },
+  { a: "antihistaminique", b: "antihistaminique", h: 24, msg: "⚠️ Deux antihistaminiques : doublon possible." },
+  { a: "thyroide", b: "chelateur", h: 4, msg: "⚠️ Fer, magnésium et antiacides réduisent l'absorption de la lévothyroxine : espacer d'au moins 4 h." }
+];
+
+/* ---------- Données (mêmes clés qu'avant : l'historique est conservé) ---------- */
+function lire(cle, defaut) {
+  try { const v = JSON.parse(localStorage.getItem(cle)); return v == null ? defaut : v; }
+  catch (e) { return defaut; }
+}
+
+const medsParDefaut = Object.keys(REGLES_DEFAUT);
+
+function normaliser(txt) {
+  return String(txt).toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+}
+
+let meds = lire("listeMeds", medsParDefaut);
+meds = meds.filter((m, i, arr) => i === arr.findIndex(x => normaliser(x) === normaliser(m)));
+localStorage.setItem("listeMeds", JSON.stringify(meds));
+
+let prises = lire("prises", []);
+let reglesUser = lire("reglesMeds", {});   // { "Nom": délai en heures } modifiés par toi ou créés via "Autre"
+
+const RN = {};
+Object.keys(REGLES_DEFAUT).forEach(k => RN[normaliser(k)] = REGLES_DEFAUT[k]);
+
+function info(nom) {
+  const r = RN[normaliser(nom)] || {};
+  return { d: r.d || 4, s: r.s || [normaliser(nom)], c: r.c || [] };
+}
+
+function getDelai(nom) {
+  const cle = Object.keys(reglesUser).find(k => normaliser(k) === normaliser(nom));
+  if (cle !== undefined && !isNaN(parseFloat(reglesUser[cle]))) return parseFloat(reglesUser[cle]);
+  return info(nom).d;
+}
+
+function sauverRegles() { localStorage.setItem("reglesMeds", JSON.stringify(reglesUser)); }
+
+/* ---------- Dates ---------- */
+function versChampLocal(ms) {
+  const d = new Date(ms);
+  const p = n => String(n).padStart(2, "0");
+  return d.getFullYear() + "-" + p(d.getMonth() + 1) + "-" + p(d.getDate()) + "T" + p(d.getHours()) + ":" + p(d.getMinutes());
+}
+
+// Ancien format : texte de toLocaleString() ; nouveau format : champ iso
+function horodatage(p) {
+  if (p.iso) { const t = new Date(p.iso).getTime(); if (!isNaN(t)) return t; }
+  const m = String(p.date || "").match(/(\d{1,2})\/(\d{1,2})\/(\d{4})[^\d]+(\d{1,2})[:h](\d{2})/);
+  if (m) return new Date(+m[3], +m[2] - 1, +m[1], +m[4], +m[5]).getTime();
+  const t = new Date(p.date).getTime();
+  return isNaN(t) ? NaN : t;
+}
+
+function fmt(ms) {
+  return new Date(ms).toLocaleString("fr-FR", { dateStyle: "short", timeStyle: "short" });
+}
+
+function esc(s) {
+  return String(s == null ? "" : s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+/* ---------- Fenêtre code (clavier numérique) ---------- */
+function demanderCode() {
+  return new Promise(resolve => {
+    const modal = document.getElementById("modal");
+    const champ = document.getElementById("modalCode");
+    const err = document.getElementById("modalErreur");
+    champ.value = ""; err.textContent = "";
+    modal.classList.remove("hidden");
+    setTimeout(() => champ.focus(), 50);
+
+    function fermer(ok) {
+      modal.classList.add("hidden");
+      document.getElementById("modalOk").onclick = null;
+      document.getElementById("modalAnnuler").onclick = null;
+      champ.onkeydown = null;
+      resolve(ok);
+    }
+    function valider() {
+      if (champ.value === PASSWORD) fermer(true);
+      else { err.textContent = "Code incorrect"; champ.value = ""; }
+    }
+    document.getElementById("modalOk").onclick = valider;
+    document.getElementById("modalAnnuler").onclick = () => fermer(false);
+    champ.onkeydown = e => { if (e.key === "Enter") valider(); };
   });
 }
+
+/* ---------- Formulaire ---------- */
+const select = document.getElementById("medicament");
+const champNouveau = document.getElementById("nouveauMed");
+const selUnite = document.getElementById("unite");
+let editIndex = null;
+
+function chargerMeds() {
+  select.innerHTML = "";
+  meds.forEach(m => {
+    const option = document.createElement("option");
+    option.value = m;
+    option.textContent = m;
+    select.appendChild(option);
+  });
+  const autre = document.createElement("option");
+  autre.value = "Autre";
+  autre.textContent = "➕ Autre...";
+  select.appendChild(autre);
+}
+
+function majAutre() {
+  const estAutre = select.value === "Autre";
+  document.getElementById("blocNouveau").classList.toggle("hidden-champ", !estAutre);
+  document.getElementById("lienNotice").style.display = estAutre ? "block" : "none";
+  document.getElementById("blocMed").classList.toggle("full", !estAutre);
+}
+select.addEventListener("change", majAutre);
+
+chargerMeds();
+majAutre();
+document.getElementById("dateHeure").value = versChampLocal(Date.now());
+
+/* ---------- Vérifications (délai, doublons, interactions) ---------- */
+function verifier(med, T, ignorer, personne) {
+  const avert = new Set();
+  const mi = info(med);
+  const dM = getDelai(med);
+
+  prises.forEach((p, i) => {
+    if (i === ignorer) return;
+    if (normaliser(p.personne || "") !== normaliser(personne || "")) return;
+    const t = horodatage(p);
+    if (isNaN(t)) return;
+    const ecart = Math.abs(T - t) / 3600000;
+    const pi = info(p.medicament);
+    const memeNom = normaliser(p.medicament) === normaliser(med);
+    const commun = mi.s.filter(x => pi.s.includes(x));
+
+    if (memeNom || commun.length) {
+      const d = Math.max(dM, getDelai(p.medicament));
+      if (ecart < d) {
+        let txt = "⏱ " + p.medicament + " pris le " + fmt(t) + " — délai minimum " + d + " h";
+        if (!memeNom) txt += " (même substance : " + commun.join(", ") + ")";
+        if (t <= T) txt += ". Prochaine prise possible à partir du " + fmt(t + d * 3600000) + ".";
+        else txt += ". Cette prise est trop proche d'une prise enregistrée plus tard.";
+        avert.add(txt);
+      }
+    } else {
+      INTERACTIONS.forEach(r => {
+        if (ecart >= r.h) return;
+        const sens1 = mi.c.includes(r.a) && pi.c.includes(r.b);
+        const sens2 = mi.c.includes(r.b) && pi.c.includes(r.a);
+        if (sens1 || sens2) avert.add(r.msg + " (avec " + p.medicament + ", " + fmt(t) + ")");
+      });
+    }
+  });
+  return Array.from(avert);
+}
+
+/* ---------- Enregistrer ---------- */
+function ajouter() {
+  let medicament = select.value;
+  const nouveau = champNouveau.value.trim();
+  const doseNum = document.getElementById("dose").value.trim().replace(",", ".");
+  const unite = selUnite.value;
+  const dateHeure = document.getElementById("dateHeure").value;
+  const note = document.getElementById("note").value.trim();
+
+  if (medicament === "Autre") {
+    if (!nouveau) { alert("Entrez le nom du médicament."); return; }
+    const existant = meds.find(m => normaliser(m) === normaliser(nouveau));
+    if (existant) {
+      alert("⚠️ Ce médicament existe déjà : " + existant);
+      medicament = existant;
+    } else {
+      meds.push(nouveau);
+      localStorage.setItem("listeMeds", JSON.stringify(meds));
+      reglesUser[nouveau] = 4;               // délai par défaut : 4 h
+      sauverRegles();
+      medicament = nouveau;
+      chargerMeds();
+      renderRegles();
+      alert("✅ « " + nouveau + " » ajouté avec un délai de 4 h. Tu peux le changer dans ⚙️ Paramètres (regarde la notice).");
+    }
+  }
+
+  if (!medicament || !doseNum || !dateHeure || isNaN(parseFloat(doseNum))) {
+    alert("Veuillez remplir médicament, dose (chiffres) et date/heure.");
+    return;
+  }
+
+  const personne = document.getElementById("personne").value.trim();
+  if (!personne) { alert("Entrez le nom de la personne."); return; }
+
+  const T = new Date(dateHeure).getTime();
+  const avert = verifier(medicament, T, editIndex, personne);
+  if (avert.length && !confirm(avert.join("\n\n") + "\n\nEnregistrer quand même ?")) return;
+
+  const entree = {
+    personne,
+    medicament,
+    dose: doseNum + " " + unite,
+    date: new Date(T).toLocaleString(),
+    iso: new Date(T).toISOString(),
+    note
+  };
+
+  if (editIndex !== null) { prises[editIndex] = entree; }
+  else { prises.unshift(entree); }
+  localStorage.setItem("prises", JSON.stringify(prises));
+
+  annulerEdition();
+  majPersonnes();
+  afficher();
+}
+
+// Liste des noms déjà utilisés (suggestions dans le champ)
+function majPersonnes() {
+  const noms = [];
+  prises.forEach(p => {
+    if (p.personne && !noms.some(n => normaliser(n) === normaliser(p.personne))) noms.push(p.personne);
+  });
+  const dl = document.getElementById("listePersonnes");
+  dl.innerHTML = "";
+  noms.forEach(n => { const o = document.createElement("option"); o.value = n; dl.appendChild(o); });
+}
+
+function annulerEdition() {
+  editIndex = null;
+  document.getElementById("btnSave").textContent = "➕ Enregistrer la prise";
+  document.getElementById("btnCancel").style.display = "none";
+  document.getElementById("dose").value = "";
+  document.getElementById("note").value = "";
+  champNouveau.value = "";
+  document.getElementById("dateHeure").value = versChampLocal(Date.now());
+  select.value = meds[0] || "Autre";
+  majAutre();
+}
+
+/* ---------- Historique ---------- */
+function afficher() {
+  const liste = document.getElementById("liste");
+  liste.innerHTML = "";
+  const maintenant = Date.now();
+  document.getElementById("compteur").textContent = prises.length ? prises.length + " prise" + (prises.length > 1 ? "s" : "") : "";
+  if (!prises.length) liste.innerHTML = '<div class="vide">Aucune prise enregistrée pour le moment.</div>';
+
+  prises.forEach((p, i) => {
+    const div = document.createElement("div");
+    div.className = "record";
+
+    const t = horodatage(p);
+    let prochaine = "";
+    if (!isNaN(t)) {
+      const next = t + getDelai(p.medicament) * 3600000;
+      if (next > maintenant) prochaine = '<span class="next">⏳ Prochaine prise possible à partir du ' + esc(fmt(next)) + "</span>";
+    }
+
+    div.innerHTML = `
+      <div class="record-tete">
+        <strong>💊 ${esc(p.medicament)}</strong>
+        <span class="badge">${esc(p.dose)}</span>
+      </div>
+      <div class="record-meta">
+        ${p.personne ? '<span class="small">👤 ' + esc(p.personne) + "</span>" : ""}
+        <span class="small">📅 ${esc(p.iso && !isNaN(t) ? fmt(t) : p.date)}</span>
+      </div>
+      ${prochaine}
+      ${p.note ? '<div class="note">📝 ' + esc(p.note) + "</div>" : ""}
+      <div class="record-actions">
+        <button class="edit" onclick="modifier(${i})">✏️ Modifier</button>
+        <button class="delete" onclick="supprimer(${i})">🗑 Supprimer</button>
+      </div>
+    `;
+    liste.appendChild(div);
+  });
+}
+
+async function supprimer(index) {
+  if (!(await demanderCode())) return;
+  if (confirm("Supprimer cette prise ?")) {
+    prises.splice(index, 1);
+    localStorage.setItem("prises", JSON.stringify(prises));
+    afficher();
+  }
+}
+
+async function modifier(index) {
+  if (!(await demanderCode())) return;
+
+  const p = prises[index];
+  editIndex = index;
+  document.getElementById("personne").value = p.personne || "";
+
+  if (meds.includes(p.medicament)) {
+    select.value = p.medicament;
+    champNouveau.value = "";
+  } else {
+    select.value = "Autre";
+    champNouveau.value = p.medicament;
+  }
+  majAutre();
+
+  // Dose : "500 mg" -> 500 + mg
+  const m = String(p.dose || "").trim().match(/^([\d]+(?:[.,]\d+)?)\s*(.*)$/);
+  if (m) {
+    document.getElementById("dose").value = m[1].replace(",", ".");
+    const u = m[2] || "mg";
+    if (!Array.from(selUnite.options).some(o => o.value === u)) {
+      const o = document.createElement("option"); o.textContent = u; selUnite.appendChild(o);
+    }
+    selUnite.value = u;
+  } else {
+    document.getElementById("dose").value = "";
+  }
+
+  const t = horodatage(p);
+  document.getElementById("dateHeure").value = versChampLocal(isNaN(t) ? Date.now() : t);
+  document.getElementById("note").value = p.note || "";
+
+  document.getElementById("btnSave").textContent = "💾 Enregistrer la modification";
+  document.getElementById("btnCancel").style.display = "block";
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+/* ---------- Paramètres ---------- */
+function renderRegles() {
+  const zone = document.getElementById("listeRegles");
+  zone.innerHTML = "";
+  meds.forEach(m => {
+    const ligne = document.createElement("div");
+    ligne.className = "regle";
+    const nom = document.createElement("span");
+    nom.textContent = m;
+    const champ = document.createElement("input");
+    champ.type = "text";
+    champ.setAttribute("inputmode", "decimal");
+    champ.value = getDelai(m);
+    champ.onchange = () => {
+      const v = parseFloat(champ.value.replace(",", "."));
+      if (isNaN(v) || v <= 0) { champ.value = getDelai(m); return; }
+      const cle = Object.keys(reglesUser).find(k => normaliser(k) === normaliser(m)) || m;
+      reglesUser[cle] = v;
+      sauverRegles();
+      afficher();
+    };
+    const h = document.createElement("span");
+    h.style.flex = "0"; h.textContent = "h";
+    ligne.append(nom, champ, h);
+    zone.appendChild(ligne);
+  });
+}
+
+function reinitialiserRegles() {
+  if (!confirm("Remettre tous les délais aux valeurs d'origine ? (les nouveaux médicaments repassent à 4 h)")) return;
+  reglesUser = {};
+  sauverRegles();
+  renderRegles();
+  afficher();
+}
+
+/* ---------- Sauvegarde ---------- */
+function exporter() {
+  const data = { prises, listeMeds: meds, reglesMeds: reglesUser, export: new Date().toISOString() };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "sauvegarde-medicaments-" + new Date().toISOString().slice(0, 10) + ".json";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+}
+
+function importer(e) {
+  const f = e.target.files[0];
+  if (!f) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!Array.isArray(d.prises) || !Array.isArray(d.listeMeds)) throw new Error("format");
+      if (!confirm("Remplacer les données actuelles par cette sauvegarde ?")) return;
+      localStorage.setItem("prises", JSON.stringify(d.prises));
+      localStorage.setItem("listeMeds", JSON.stringify(d.listeMeds));
+      localStorage.setItem("reglesMeds", JSON.stringify(d.reglesMeds || {}));
+      location.reload();
+    } catch (err) { alert("Fichier de sauvegarde invalide."); }
+  };
+  r.readAsText(f);
+  e.target.value = "";
+}
+
+// Paramètres protégés par le code
+document.querySelector("#parametres summary").addEventListener("click", async e => {
+  const d = document.getElementById("parametres");
+  if (d.open) return;               // fermer = libre
+  e.preventDefault();
+  if (await demanderCode()) d.open = true;
+});
+
+renderRegles();
+majPersonnes();
+afficher();
+setInterval(afficher, 60000);
 </script>
 
 </body>
